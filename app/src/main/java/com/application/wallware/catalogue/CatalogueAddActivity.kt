@@ -1,22 +1,23 @@
 package com.application.wallware.catalogue
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.application.wallware.R
 import com.application.wallware.databinding.ActivityCatalogueAddBinding
 import com.bumptech.glide.Glide
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import android.app.AlertDialog
-import com.application.wallware.R
 import java.util.*
 
 
@@ -24,15 +25,29 @@ class CatalogueAddActivity : AppCompatActivity() {
 
     private var binding: ActivityCatalogueAddBinding? = null
     private var image: String? = null
+    private var status: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCatalogueAddBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
+
+
+        val adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.category, android.R.layout.simple_list_item_1
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding?.category?.setAdapter(adapter)
+        binding?.category?.setOnItemClickListener { adapterView, view, i, l ->
+            status = binding?.category?.text.toString()
+        }
+
+
         binding?.imageHint?.setOnClickListener {
             ImagePicker.with(this)
-                .cameraOnly()
+                .galleryOnly()
                 .compress(1024)
                 .start(REQUEST_FROM_CAMERA_TO_SELF_PHOTO)
         }
@@ -46,6 +61,21 @@ class CatalogueAddActivity : AppCompatActivity() {
             formValidation()
         }
 
+        binding?.info?.setOnClickListener {
+            showAlertDialog()
+        }
+
+    }
+
+    private fun showAlertDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Keterangan")
+            .setMessage("Masukkan angka 0, jika intensitas penyiraman setiap hari")
+            .setIcon(R.drawable.ic_baseline_check_circle_outline_24)
+            .setPositiveButton("OKE") { dialogInterface, i ->
+                dialogInterface.dismiss()
+            }
+            .show()
     }
 
     private fun formValidation() {
@@ -70,6 +100,10 @@ class CatalogueAddActivity : AppCompatActivity() {
                 Toast.makeText(this, "Gambar Tanaman tidak boleh kosong", Toast.LENGTH_SHORT).show()
                 return
             }
+            status == null -> {
+                Toast.makeText(this, "Kategori tanaman tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                return
+            }
         }
 
 
@@ -81,9 +115,10 @@ class CatalogueAddActivity : AppCompatActivity() {
             "name" to name,
             "nameTemp" to name.lowercase(Locale.getDefault()),
             "description" to description,
-            "time" to time,
+            "time" to time.toInt(),
             "image" to image,
             "uid" to uid,
+            "category" to status,
         )
 
         Firebase
@@ -118,7 +153,7 @@ class CatalogueAddActivity : AppCompatActivity() {
     private fun showSuccessDialog() {
         AlertDialog.Builder(this)
             .setTitle("Berhasil Mengunggah Tanaman")
-            .setMessage("berhasil mengunggah katalog t")
+            .setMessage("berhasil mengunggah katalog tanaman")
             .setIcon(R.drawable.ic_baseline_check_circle_outline_24)
             .setPositiveButton("OKE") { dialogInterface, i ->
                 dialogInterface.dismiss()

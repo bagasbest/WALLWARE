@@ -22,11 +22,12 @@ class CatalogueViewModel: ViewModel() {
                 .addOnSuccessListener { documents ->
                     for (document in documents) {
                         val userItem = CatalogueModel()
-                        userItem.uid = document.id
+                        userItem.uid = document.data["uid"].toString()
                         userItem.name = document.data["name"].toString()
                         userItem.description = document.data["description"].toString()
                         userItem.image = document.data["image"].toString()
-                        userItem.time = document.data["time"].toString()
+                        userItem.time = document.data["time"].toString().toInt()
+                        userItem.category = document.data["category"].toString()
 
                         listItems.add(userItem)
                     }
@@ -51,11 +52,13 @@ class CatalogueViewModel: ViewModel() {
                 .addOnSuccessListener { documents ->
                     for (document in documents) {
                         val userItem = CatalogueModel()
-                        userItem.uid = document.id
+                        userItem.uid = document.data["uid"].toString()
                         userItem.name = document.data["name"].toString()
                         userItem.description = document.data["description"].toString()
                         userItem.image = document.data["image"].toString()
-                        userItem.time = document.data["time"].toString()
+                        userItem.time = document.data["time"].toString().toInt()
+                        userItem.category = document.data["category"].toString()
+
 
                         listItems.add(userItem)
                     }
